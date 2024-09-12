@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>iPad管理台帳</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kufam:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- destyle.css CDN -->
+
+    <style>
+        
+body {
+    font-family: 'Kufam', 'Noto Sans JP', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1 {margin-left: 2%;}
+p {margin-left: 2%;}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px;
+    border: none; 
+    align-items: center; /* ここで垂直位置を中央に揃えます */
+
+}
+.row > div {
+    flex: 1;
+    text-align: center;
+    margin:0;
+    padding:0;
+    
+}
+.row > div:first-child {
+
+}
+form {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border: none;
+}
+form input, form select {
+    flex: 1;
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 10px; /* データ入力欄を丸くします */
+    border: none; /* ふちを消してモダンデザインにします */
+}
+form input[type="submit"] {
+    color: #fff;
+    font-weight: bold;
+    background-color: #888;
+    cursor: pointer;
+    border: none; /* ふちを消してモダンデザインにします */
+    transition: transform 0.3s ease-in-out;
+    border-radius: 20px; /* データ入力欄を丸くします */
+}
+form input[type="submit"]:hover {
+    color: #fff;
+    font-weight: bold;
+    background-color: #999;
+    cursor: pointer;
+    border: none; /* ふちを消してモダンデザインにします */
+    
+    transition: transform 60s ease-in-out;
+    border-radius: 10px; /* データ入力欄を丸くします */
+}
+#searchInput {
+    display: block;
+    width: 24%; 
+    margin: 20px auto;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.row, #ipadForm {
+    background: linear-gradient(to right, #f8d7da 0%, #d4edda 30%, #d4edda 40%, #f9e79f 45%, #f9e79f 20%, #d6eaf8 125%);
+}
+
+    </style>
+</head>
+<body>
+    <h1>iPad管理台帳</h1>
+    <p>催事場貸し出し用iPadのみ表示されます..</p>
+    <input type="text" id="searchInput" placeholder="入力に応じて表示を絞り込みます...">
+    <form id="ipadForm">
+        <input type="text" id="ipadId" placeholder="iPad管理番号" required>
+        <select id="ipadStatus" required>
+            <option value="" disabled selected>現在のステータス</option>
+            <option value="保管中">保管中</option>
+            <option value="貸出中">貸出中</option>
+        </select>
+        <input type="text" id="ipadCurrent" placeholder="現在の貸出先">
+        <input type="text" id="ipadPrevious" placeholder="一個前の貸出先">
+        <input type="submit" value="追加">
+    </form>
+    <div id="ipadContainer"></div>
+    <script>
+        let ipadData = JSON.parse(localStorage.getItem('ipadData')) || [
+            { id: 'IPN001', status: '保管中', current: 'N/A', previous: 'N/A' },
+        ];
+
+        let form = document.getElementById('ipadForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let newIpadId = document.getElementById('ipadId').value;
+            let existingIpad = ipadData.find(ipad => ipad.id === newIpadId);
+            if (existingIpad) {
+                alert('エラー: このiPad管理番号は既に存在します。');
+                return;
+            }
+            let newIpad = {
+                id: newIpadId,
+                status: document.getElementById('ipadStatus').value,
+                current: document.getElementById('ipadCurrent').value,
+                previous: document.getElementById('ipadPrevious').value
+            };
+            ipadData.push(newIpad);
+            localStorage.setItem('ipadData', JSON.stringify(ipadData));
+            renderData(ipadData);
+        });
+
+        searchInput.addEventListener('input', function() {
+            let searchValue = this.value.toLowerCase();
+            let filteredData = ipadData.filter(ipad => 
+                ipad.id.toLowerCase().includes(searchValue) ||
+                ipad.status.toLowerCase().includes(searchValue) ||
+                ipad.current.toLowerCase().includes(searchValue) ||
+                ipad.previous.toLowerCase().includes(searchValue)
+            );
+            renderData(filteredData);
+        });
+    
+        function renderData(data) {
+            let container = document.getElementById('ipadContainer');
+            container.innerHTML = '';
+            for (let ipad of data) {
+                let row = document.createElement('div');
+                row.className = 'row';
+                row.innerHTML = `
+                    <div>${ipad.id}</div>
+                    <div>${ipad.status}</div>
+                    <div>${ipad.current}</div>
+                    <div>${ipad.previous}</div>
+                    <div>
+                        <button onclick="editIpad('${ipad.id}')">編集</button>
+                        <button onclick="deleteIpad('${ipad.id}')">削除</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            }
+        }
+    
+        function editIpad(id) {
+            let ipad = ipadData.find(ipad => ipad.id === id);
+            if (ipad) {
+                document.getElementById('ipadId').value = ipad.id;
+                document.getElementById('ipadStatus').value = ipad.status;
+                document.getElementById('ipadCurrent').value = ipad.current;
+                document.getElementById('ipadPrevious').value = ipad.previous;
+                deleteIpad(id);
+            }
+        }
+    
+        function deleteIpad(id) {
+            ipadData = ipadData.filter(ipad => ipad.id !== id);
+            localStorage.setItem('ipadData', JSON.stringify(ipadData));
+            renderData(ipadData);
+        }
+    
+        renderData(ipadData);
+    </script>
+</body>
+</html>

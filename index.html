@@ -173,13 +173,15 @@
         let ipadData = JSON.parse(localStorage.getItem('ipadData')) || [
             { id: 'IPN001', status: '保管中', current: 'N/A', previous: 'N/A' },
         ];
-
+    
         let form = document.getElementById('ipadForm');
+        let isEditing = false; 
+    
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             let newIpadId = document.getElementById('ipadId').value;
             let existingIpad = ipadData.find(ipad => ipad.id === newIpadId);
-            if (existingIpad) {
+            if (existingIpad && !isEditing) {
                 alert('エラー: このiPad管理番号は既に存在します。');
                 return;
             }
@@ -197,11 +199,17 @@
                 alert('エラー: "貸出中"のiPadは"現在の貸出先"を入力してください。');
                 return;
             }
-            ipadData.push(newIpad);
+            if (isEditing) {
+                let index = ipadData.findIndex(ipad => ipad.id === newIpadId);
+                ipadData[index] = newIpad;
+                isEditing = false; // Reset edit mode
+            } else {
+                ipadData.push(newIpad);
+            }
             localStorage.setItem('ipadData', JSON.stringify(ipadData));
             renderData(ipadData);
         });
-
+    
         searchInput.addEventListener('input', function() {
             let searchValue = this.value.toLowerCase();
             let filteredData = ipadData.filter(ipad => 
@@ -212,6 +220,7 @@
             );
             renderDataForDeleteIpad(filteredData);
         });
+    
         function renderData(data) {
             let container = document.getElementById('ipadContainer');
             container.innerHTML = '';
@@ -230,8 +239,9 @@
                 `;
                 container.appendChild(row);
             }
-            clearFormInputs();//←ここでinput, select内部の入力を消している
+            clearFormInputs();
         }
+    
         function renderDataForDeleteIpad(data) {
             let container = document.getElementById('ipadContainer');
             container.innerHTML = '';
@@ -251,6 +261,7 @@
                 container.appendChild(row);
             }
         }
+    
         function clearFormInputs() {
             document.getElementById('ipadId').value = '';
             document.getElementById('ipadStatus').value = '';
@@ -260,6 +271,10 @@
         }
     
         function editIpad(id) {
+            if (isEditing) {
+                alert('エラー: 編集中のデータがあります。追加するまで編集できません。');
+                return;
+            }
             let ipad = ipadData.find(ipad => ipad.id === id);
             if (ipad) {
                 document.getElementById('ipadId').value = ipad.id;
@@ -267,6 +282,7 @@
                 document.getElementById('ipadCurrent').value = ipad.current;
                 document.getElementById('ipadPrevious').value = ipad.previous;
                 deleteIpad(id);
+                isEditing = true; // Set edit mode
             }
         }
     
@@ -275,6 +291,7 @@
             localStorage.setItem('ipadData', JSON.stringify(ipadData));
             renderDataForDeleteIpad(ipadData);
         }
+    
         renderData(ipadData);
     </script>
 </body>

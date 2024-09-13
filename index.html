@@ -9,89 +9,132 @@
     <!-- destyle.css CDN -->
 
     <style>
-        
-body {
-    font-family: 'Kufam', 'Noto Sans JP', sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        body {
+            font-family: 'Kufam', 'Noto Sans JP', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-h1 {margin-left: 2%;}
-p {margin-left: 2%;}
-
-.row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 8px;
-    border: none; 
-    align-items: center; /* ここで垂直位置を中央に揃えます */
-
-}
-.row > div {
-    flex: 1;
-    text-align: center;
-    margin:0;
-    padding:0;
+        h1 {margin-left: 2%;}
+        p {margin-left: 2%;}
     
-}
-.row > div:first-child {
+    /* 検索窓関連 */
 
-}
-form {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #f2f2f2;
-    border: none;
-}
-form input, form select {
-    flex: 1;
-    margin-right: 10px;
-    padding: 5px;
-    border-radius: 10px; /* データ入力欄を丸くします */
-    border: none; /* ふちを消してモダンデザインにします */
-}
-form input[type="submit"] {
-    color: #fff;
-    font-weight: bold;
-    background-color: #888;
-    cursor: pointer;
-    border: none; /* ふちを消してモダンデザインにします */
-    transition: transform 0.3s ease-in-out;
-    border-radius: 20px; /* データ入力欄を丸くします */
-}
-form input[type="submit"]:hover {
-    color: #fff;
-    font-weight: bold;
-    background-color: #999;
-    cursor: pointer;
-    border: none; /* ふちを消してモダンデザインにします */
+        .searchForm {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 10vh;
+            width:25%;
+            margin: 0 auto;
+        }
+        #searchInput {
+            flex: 1;
+            width: 24%; 
+            margin: 20px auto;
+
+            padding: 12px;
+            border: 1px solid #666;
+            border-radius: 10px 0 0 10px;
+        }
+        #searchSubmit {
+            width: 40px;
+            height: 40px;
+            border-radius: 0 10px 10px 0;
+            background: #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        #searchSubmit::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #fff;
+        }
+        #searchSubmit::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-top: solid 2px #fff;
+            transform: rotate(45deg);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+    /* 入力窓関連 */
+
+        form input, form select {
+            flex: 1;
+            margin-right: 10px;
+            padding: 5px;
+            border-radius: 10px; /* データ入力欄を丸くします */
+            border: none; /* ふちを消してモダンデザインにします */
+        }
+        form input[type="submit"] {
+            color: #fff;
+            font-weight: bold;
+            background-color: #888;
+            cursor: pointer;
+            border: none; /* ふちを消してモダンデザインにします */
+            transition: transform 0.3s ease-in-out;
+            border-radius: 20px; /* データ入力欄を丸くします */
+        }
+        form input[type="submit"]:hover {
+            color: #fff;
+            font-weight: bold;
+            background-color: #999;
+            cursor: pointer;
+            border: none; /* ふちを消してモダンデザインにします */
+            
+            transition: transform 60s ease-in-out;
+            border-radius: 10px; /* データ入力欄を丸くします */
+        }
+
+        .row, #ipadForm {
+            background: linear-gradient(to right, #f8d7da 0%, #d4edda 30%, #d4edda 40%, #f9e79f 45%, #f9e79f 20%, #d6eaf8 125%);
+        }
+
+    /* main.jsで生成される要素 */
+    .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 8px;
+            border: none; 
+            align-items: center; /* ここで垂直位置を中央に揃えます */
+        }
+        .row > div {
+            flex: 1;
+            text-align: center;
+            margin:0;
+            padding:0;
+        }
+        form {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border: none;
+        }
     
-    transition: transform 60s ease-in-out;
-    border-radius: 10px; /* データ入力欄を丸くします */
-}
-#searchInput {
-    display: block;
-    width: 24%; 
-    margin: 20px auto;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-.row, #ipadForm {
-    background: linear-gradient(to right, #f8d7da 0%, #d4edda 30%, #d4edda 40%, #f9e79f 45%, #f9e79f 20%, #d6eaf8 125%);
-}
-
     </style>
 </head>
 <body>
     <h1>iPad管理台帳</h1>
     <p>催事場貸し出し用iPadのみ表示されます..</p>
-    <input type="text" id="searchInput" placeholder="入力に応じて表示を絞り込みます...">
+
+    <div class="searchForm">
+        <input type="text" id="searchInput" placeholder="データを入れてください...">
+        <button id="searchSubmit" type="submit"></button>
+    </div>
     <form id="ipadForm">
         <input type="text" id="ipadId" placeholder="iPad管理番号" required>
         <select id="ipadStatus" required>
@@ -176,7 +219,6 @@ form input[type="submit"]:hover {
             localStorage.setItem('ipadData', JSON.stringify(ipadData));
             renderData(ipadData);
         }
-    
         renderData(ipadData);
     </script>
 </body>

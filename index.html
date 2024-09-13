@@ -63,6 +63,7 @@
 
 
 
+
         form input, form select {
             flex: 1;
             margin-right: 10px;
@@ -85,10 +86,12 @@
             border-radius: 10px;
         }
 
+
+
+
         #ipadForm, .row {
             background: linear-gradient(to right, #f8d7da 0%, #d4edda 30%, #d4edda 40%, #f9e79f 45%, #f9e79f 20%, #d6eaf8 125%);
         }
-
         .row {
             display: flex;
             flex-direction: row;
@@ -125,6 +128,9 @@
             border: none;
         }
 
+
+
+        
         .editDiv {
             display: flex;
             flex-direction: row;
@@ -183,6 +189,14 @@
                 current: document.getElementById('ipadCurrent').value,
                 previous: document.getElementById('ipadPrevious').value
             };
+            if (newIpad.status === '保管中' && newIpad.current !== '') {
+                alert('エラー: "保管中"のiPadは"現在の貸出先"を空欄にしてください。');
+                return;
+            }
+            if (newIpad.status === '貸出中' && newIpad.current === '') {
+                alert('エラー: "貸出中"のiPadは"現在の貸出先"を入力してください。');
+                return;
+            }
             ipadData.push(newIpad);
             localStorage.setItem('ipadData', JSON.stringify(ipadData));
             renderData(ipadData);

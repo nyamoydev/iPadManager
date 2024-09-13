@@ -2,12 +2,8 @@
 <html>
 <head>
     <title>iPad管理台帳</title>
-
-    
     <link href="https://fonts.googleapis.com/css2?family=Kufam:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- destyle.css CDN -->
-
     <style>
         body {
             font-family: 'Kufam', 'Noto Sans JP', sans-serif;
@@ -15,28 +11,25 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         h1 {margin-left: 2%;}
         p {margin-left: 2%;}
     
-    /* 検索窓関連 */
-
         .searchForm {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 10vh;
-            width:25%;
+            width: 25%;
             margin: 0 auto;
         }
         #searchInput {
             flex: 1;
             width: 24%; 
             margin: 20px auto;
-
-            padding: 12px;
+            padding: 11.5px;
             border: 1px solid #666;
             border-radius: 10px 0 0 10px;
+            border-collapse: collapse;
         }
         #searchSubmit {
             width: 40px;
@@ -63,58 +56,65 @@
             border-top: solid 2px #fff;
             transform: rotate(45deg);
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 88%;
+            left: 68%;
             transform: translate(-50%, -50%) rotate(45deg);
         }
 
-    /* 入力窓関連 */
+
 
         form input, form select {
             flex: 1;
             margin-right: 10px;
             padding: 5px;
-            border-radius: 10px; /* データ入力欄を丸くします */
-            border: none; /* ふちを消してモダンデザインにします */
+            border-radius: 10px;
+            border: none;
         }
         form input[type="submit"] {
             color: #fff;
             font-weight: bold;
             background-color: #888;
             cursor: pointer;
-            border: none; /* ふちを消してモダンデザインにします */
-            transition: transform 0.3s ease-in-out;
-            border-radius: 20px; /* データ入力欄を丸くします */
+            border: none;
+            transition: transform 1s ease-in-out;
+            border-radius: 20px;
         }
         form input[type="submit"]:hover {
-            color: #fff;
-            font-weight: bold;
             background-color: #999;
             cursor: pointer;
-            border: none; /* ふちを消してモダンデザインにします */
-            
-            transition: transform 60s ease-in-out;
-            border-radius: 10px; /* データ入力欄を丸くします */
+            border-radius: 10px;
         }
 
-        .row, #ipadForm {
+        #ipadForm, .row {
             background: linear-gradient(to right, #f8d7da 0%, #d4edda 30%, #d4edda 40%, #f9e79f 45%, #f9e79f 20%, #d6eaf8 125%);
         }
 
-    /* main.jsで生成される要素 */
-    .row {
+        .row {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
             padding: 8px;
-            border: none; 
-            align-items: center; /* ここで垂直位置を中央に揃えます */
+            border: none;
+            align-items: baseline;
+        }
+        .row > dt {
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+
+        }
+        .row > dd {
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            padding: 0;
         }
         .row > div {
             flex: 1;
             text-align: center;
-            margin:0;
-            padding:0;
+            margin: 0;
+            padding: 0;
         }
         form {
             display: flex;
@@ -124,7 +124,23 @@
             background-color: #f2f2f2;
             border: none;
         }
-    
+
+        .editDiv {
+            display: flex;
+            flex-direction: row;
+            justify-content:space-around;
+            align-items: baseline;
+        }
+        .editDiv > button {
+            color: #888;
+            font-weight: bold;
+            background-color: #fff;
+            cursor: pointer;
+            padding:8px 16px;
+            border: 1px solid #888;
+            border-radius: 4px;
+            
+        }
     </style>
 </head>
 <body>
@@ -146,7 +162,7 @@
         <input type="text" id="ipadPrevious" placeholder="一個前の貸出先">
         <input type="submit" value="追加">
     </form>
-    <div id="ipadContainer"></div>
+    <dl id="ipadContainer"></dl>
     <script>
         let ipadData = JSON.parse(localStorage.getItem('ipadData')) || [
             { id: 'IPN001', status: '保管中', current: 'N/A', previous: 'N/A' },
@@ -180,9 +196,8 @@
                 ipad.current.toLowerCase().includes(searchValue) ||
                 ipad.previous.toLowerCase().includes(searchValue)
             );
-            renderData(filteredData);
+            renderDataForDeleteIpad(filteredData);
         });
-    
         function renderData(data) {
             let container = document.getElementById('ipadContainer');
             container.innerHTML = '';
@@ -190,17 +205,44 @@
                 let row = document.createElement('div');
                 row.className = 'row';
                 row.innerHTML = `
-                    <div>${ipad.id}</div>
-                    <div>${ipad.status}</div>
-                    <div>${ipad.current}</div>
-                    <div>${ipad.previous}</div>
-                    <div>
+                    <dt>${ipad.id}</dt>
+                    <dd>${ipad.status}</dd>
+                    <dd>${ipad.current}</dd>
+                    <dd>${ipad.previous}</dd>
+                    <div class="editDiv">
                         <button onclick="editIpad('${ipad.id}')">編集</button>
                         <button onclick="deleteIpad('${ipad.id}')">削除</button>
                     </div>
                 `;
                 container.appendChild(row);
             }
+            clearFormInputs();//←ここでinput, select内部の入力を消している
+        }
+        function renderDataForDeleteIpad(data) {
+            let container = document.getElementById('ipadContainer');
+            container.innerHTML = '';
+            for (let ipad of data) {
+                let row = document.createElement('div');
+                row.className = 'row';
+                row.innerHTML = `
+                    <dt>${ipad.id}</dt>
+                    <dd>${ipad.status}</dd>
+                    <dd>${ipad.current}</dd>
+                    <dd>${ipad.previous}</dd>
+                    <div class="editDiv">
+                        <button onclick="editIpad('${ipad.id}')">編集</button>
+                        <button onclick="deleteIpad('${ipad.id}')">削除</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            }
+        }
+        function clearFormInputs() {
+            document.getElementById('ipadId').value = '';
+            document.getElementById('ipadStatus').value = '';
+            document.getElementById('ipadCurrent').value = '';
+            document.getElementById('ipadPrevious').value = '';
+            document.getElementById('ipadStatus').selectedIndex = 0;
         }
     
         function editIpad(id) {
@@ -217,9 +259,10 @@
         function deleteIpad(id) {
             ipadData = ipadData.filter(ipad => ipad.id !== id);
             localStorage.setItem('ipadData', JSON.stringify(ipadData));
-            renderData(ipadData);
+            renderDataForDeleteIpad(ipadData);
         }
         renderData(ipadData);
     </script>
 </body>
 </html>
+
